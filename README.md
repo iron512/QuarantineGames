@@ -2,10 +2,10 @@
 ### Quarantine Dev Studio
 (Potrebbe essere un bel nome per uno studio di videogames o altro)
 
-*First repository of the QuarantineDev Group built during the Italian Quarantine from COVID-19. The goal is to develop a small and easy videogame without any meeting, due to the quarantine :).*
+*First repository of the QuarantineDev Group built during the Italian Quarantine from COVID-19. The goal is to develop, I dont know what, but to develop*
 
 ## Motivazione:
-Come ben sapete adoro i giochi da tavolo. Mi piace trovarsi e intavolare una bella partita, soprattutto per giochi un po strategici o gestionali (Dobbiamo riprendere Seafall!) Ma spesso risulta difficile trovarsi oppure i giochi sono davvero lunghi e ci si annoia ad aspettare i turni degli alti (GoT ne sai qualcosa?) Per questa ragione ho sempre voluto provare qualcosa di online (esistono gia delle soluzioni) ma fuck quarantena ce lo facciamo noi.
+Spesso risulta difficile trovarsi oppure i giochi sono davvero lunghi e ci si annoia ad aspettare i turni degli alti (GoT ne sai qualcosa?) Per questa ragione ho sempre voluto provare qualcosa di online (esistono gia delle soluzioni) ma fuck quarantena si builda da capo
 
 ## Tema:
 Come avevo gia accennato il tema è quello dei Gangsters, per delle semplici motivazioni: Primo, i gangster hanno fascino e avrei sempre voluto esserne uno. Secondo, anche gli anni venti hanno molto fascino. Terzo, più seriamente l'idea di dare comandi a un server è molto simile all'idea del boss che da degli ordini agli scagnozzi che poi eseguono le loro azioni.
