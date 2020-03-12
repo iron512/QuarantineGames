@@ -4,13 +4,13 @@
 
 *First repository of the QuarantineDev Group built during the Italian Quarantine from COVID-19. The goal is to develop a small and easy videogame without any meeting, due to the quarantine :).*
 
-##Motivazione:
+## Motivazione:
 Come ben sapete adoro i giochi da tavolo. Mi piace trovarsi e intavolare una bella partita, soprattutto per giochi un po strategici o gestionali (Dobbiamo riprendere Seafall!) Ma spesso risulta difficile trovarsi oppure i giochi sono davvero lunghi e ci si annoia ad aspettare i turni degli alti (GoT ne sai qualcosa?) Per questa ragione ho sempre voluto provare qualcosa di online (esistono gia delle soluzioni) ma fuck quarantena ce lo facciamo noi.
 
-##Tema:
+## Tema:
 Come avevo gia accennato il tema è quello dei Gangsters, per delle semplici motivazioni: Primo, i gangster hanno fascino e avrei sempre voluto esserne uno. Secondo, anche gli anni venti hanno molto fascino. Terzo, più seriamente l'idea di dare comandi a un server è molto simile all'idea del boss che da degli ordini agli scagnozzi che poi eseguono le loro azioni.
 
-##Meccaniche: 
+## Meccaniche: 
 **Tutto cio scritto qui è molto da definire**
 Onestamente avevo pensato a questo gioco molto tempo fa come una sorta di gioco di ruolo, con un master che fa il padrino della città a le azioni dei vari capi permettono l'interazione con lui. Diventa complesso però, farei qualcosa di più semplice.
 
