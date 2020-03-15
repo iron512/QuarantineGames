@@ -2,6 +2,7 @@ var player = require("./classi.js");
 const Telegraf = require('telegraf');
 const TelegrafInlineMenu = require('telegraf-inline-menu');
 
+var role = { good: 0, bad: 1 };
 var players = [];
 var isStarted = false;
 
@@ -15,8 +16,8 @@ menu.simpleButton('join game', 'a', {
 
 menu.setCommand('start')
 
-const bot = new Telegraf("1102153334:AAE9u_2HoJBs175nuILa9HqW_NL7LnPll7U");
-//988248135:AAHbsQMjyMFQjbDD8ms7AipKsoROic6EUdo
+const bot = new Telegraf("988248135:AAHbsQMjyMFQjbDD8ms7AipKsoROic6EUdo");
+//1102153334:AAE9u_2HoJBs175nuILa9HqW_NL7LnPll7U
 
 bot.use(menu.init())
 
@@ -29,8 +30,15 @@ bot.on('text',
         break;
 
       case "/startgame":
-        sendToEveryone(ctx, 'the game has started');
-        isStarted = true;
+        var result = decideRoles();
+        if (result == "decided") {
+          sendToEveryone(ctx, 'the game has started');
+          isStarted = true;
+        }
+        else {
+          ctx.reply(result);
+        }
+
         break;
 
       default:
@@ -39,7 +47,6 @@ bot.on('text',
     }
     console.log(ctx.message);
   })
-
 
 bot.launch();
 bot.startPolling();
@@ -59,5 +66,28 @@ function joinGame(ctx) {
 function sendToEveryone(ctx, message) {
   for (let p of players) {
     ctx.telegram.sendMessage(p.id, message);
+  }
+}
+
+function decideRoles() {
+  if (players.length >= 5) {
+    if (players.length <= 10) {
+      var index = 0;
+      while (index < players.length / 2) {
+        players[index].role = role.good;
+        index++;
+      }
+      while (index < player.length) {
+        players[index].role = role.good;
+        index++;
+      }
+      return "decided";
+    }
+    else {
+      return "too much players, must be no more than 10!";
+    }
+  }
+  else {
+    return "you have to be at least 5 players";
   }
 }
