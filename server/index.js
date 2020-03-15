@@ -16,8 +16,12 @@ menu.simpleButton('join game', 'a', {
 
 menu.setCommand('start')
 
-const bot = new Telegraf("988248135:AAHbsQMjyMFQjbDD8ms7AipKsoROic6EUdo");
-//1102153334:AAE9u_2HoJBs175nuILa9HqW_NL7LnPll7U
+var bots ={
+  quarantineDev: "988248135:AAHbsQMjyMFQjbDD8ms7AipKsoROic6EUdo",
+  martino: "1102153334:AAE9u_2HoJBs175nuILa9HqW_NL7LnPll7U"
+}
+
+const bot = new Telegraf(bots.martino);
 
 bot.use(menu.init())
 
@@ -30,19 +34,11 @@ bot.on('text',
         break;
 
       case "/startgame":
-        var result = decideRoles();
-        if (result == "decided") {
-          sendToEveryone(ctx, 'the game has started');
-          isStarted = true;
-        }
-        else {
-          ctx.reply(result);
-        }
-
+        
         break;
 
       default:
-        ctx.reply("sorry I don't understand your request");
+        ctx.reply("sorry I dind't understand your request");
         break;
     }
     console.log(ctx.message);
@@ -56,7 +52,7 @@ function joinGame(ctx) {
   if (isNew) {
     sendToEveryone(ctx, `${ctx.chat.username} has joined the game!`)
     players.push(new player(ctx.chat.id, ctx.chat.username));
-    ctx.reply('joined!');
+    ctx.reply('joined! waiting for other players');
   }
   else {
     ctx.reply('you are alredy in the game!');
@@ -66,28 +62,5 @@ function joinGame(ctx) {
 function sendToEveryone(ctx, message) {
   for (let p of players) {
     ctx.telegram.sendMessage(p.id, message);
-  }
-}
-
-function decideRoles() {
-  if (players.length >= 5) {
-    if (players.length <= 10) {
-      var index = 0;
-      while (index < players.length / 2) {
-        players[index].role = role.good;
-        index++;
-      }
-      while (index < player.length) {
-        players[index].role = role.good;
-        index++;
-      }
-      return "decided";
-    }
-    else {
-      return "too much players, must be no more than 10!";
-    }
-  }
-  else {
-    return "you have to be at least 5 players";
   }
 }
