@@ -1,0 +1,14 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Corona Fighters - A bluff game for fighting COVID19 and boredom",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Iron512",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "^3.36.0"
+  }
+}
