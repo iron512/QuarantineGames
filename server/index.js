@@ -1,7 +1,23 @@
-//requires*
-const telegraf = require('telegraf');
-const privacy = require('../token.js')
-const TelegrafInlineMenu = require('telegraf-inline-menu');
+var player = require("./classi.js");
+var selectPlayers = require('./selectPlayers');
+
+const Telegraf = require('telegraf')
+const TelegrafInlineMenu = require('telegraf-inline-menu')
+
+const menu = new TelegrafInlineMenu(ctx => `Hey ${ctx.from.first_name}!`)
+menu.setCommand('sP')
+
+let mainMenuToggle = false
+const selectPlayers = new TelegrafInlineMenu ()
+.toggle('toggle me', 'a', {
+  setFunc: (_ctx, newVal) => {
+    mainMenuToggle = newVal
+    selectPlayers(menu, _ctx)
+  },
+  isSetFunc: () => mainMenuToggle
+})
+
+menu.selectSubmenu('p', players )
 
 const player = require("./classi.js");
 
@@ -90,113 +106,58 @@ bot.start((message) => {
 	return message.reply('Welcome in the covid-19 era');
 })
 
-bot.command('joingame', function(ctx,next){
-	if (state != "active") {
-		
-		var isNew = players.findIndex((element) => element.id == ctx.message.from.id) == -1;
-		if (isNew) {
-			players.push(new player(ctx.message.from.id, ctx.message.from.username));
-			
-			var answer = ""
-			for (let p of players) {
-			//	ctx.telegram.sendMessage(p.id, ctx.message.from.username + " has joined the game!")
-				answer = answer + " * " + p.name + "\n"
-			}
-			
-			ctx.reply(ctx.message.from.username + ' has joined the game!\n\nCurrent players are:\n' + answer);
-		}
-		else {
-			ctx.reply('You are alredy in the game!');
-		}
-	}
-	else{
-		//ctx.reply('sorry, game is alredy started');
-	}
+bot.on('text',
+  (ctx) => {
+    switch (ctx.message.text) {
 
-})
+      case "/join": //idea di creare più partite e dividerle per nome in modo da sciegliere in quale entrare
 
-bot.command('startgame', function (ctx, next) {
-	if (((players.length >= 5) && (players.length <=10)) && state == "create") {
-		state = "setup"
-		shuffle(players)
+        if (!isStarted) {
+          var isNew = players.findIndex((element) => element.id == ctx.chat.id) == -1;
+          if (isNew) {
+            for (let p of players) {
+              ctx.telegram.sendMessage(p.id, `${ctx.chat.username} has joined the game!`)
+            }
+            players.push(new player(ctx.chat.id, ctx.chat.username));
+            ctx.reply('joined!');
+          }
+          else {
+            ctx.reply('you are alredy in the game!');
+          }
+        }
+        else{
+          ctx.reply('sorry, game is alredy started');
+        }
 
-		var setup = roles[players.length-5];
-		var pickedDoctors = 0;
-		var pickedInfectors = 0;
+      break;
 
-		for (var i = players.length - 1; i >= 0; i--) {
-			var choice = Math.floor((Math.random() * 10000) %  ((setup.doctors - pickedDoctors) + (setup.infectors - pickedInfectors))) + 1 ;
-			console.log(choice)
-			if (setup.infectors == pickedInfectors){
-				console.log("\tequal inf")
-				players[i].role = "doctor"
-				pickedDoctors++
-			} else if (setup.doctors == pickedDoctors) {
-				console.log("\tequal doc")
-				players[i].role = "infector"
-				pickedInfectors++
-			} else if (choice > (setup.infectors - pickedInfectors)) {
-				players[i].role = "doctor"
-				pickedDoctors++
-			} else {
-				players[i].role = "infector"
-				pickedInfectors++
-			}
+      case "/startgame":
+        for (let p of players) {
+          ctx.telegram.sendMessage(p.id, 'the game has started');
+        }
+        isStarted = true;
+      break;
 
-			console.log(players[i].name + " is a " + players[i].role);
-		}
-		console.log("");
-		console.log("Game is set up right now. Informing partecipants of their role");
-		
-		var message
-		for (var i = players.length - 1; i >= 0; i--) {
-			if (players[i].role == "infector") {
-				message = "Hi " + players[i].name + ", you have been assigned to the Infectors Squad \u{1F489}.\n\nYour other bad pals are:"
+      default:
+        var str = ctx.message.text
+        if(str.charAt(0) == '§'){
+          str = str.substring(1)
+          for(let p of players){
+            if(p.id == str){
+              p.selected = true
+            }
+          }
+        }
+        else{
+          ctx.reply("sorry I don't understand your request");
+        }
+      break;
+    }
+    console.log(ctx.message);
+    console.log(players)
+  })
 
-				for (var j = players.length - 1; j >= 0; j--) {
-					if (players[j].role == "infector" && players[j] != players[i]) {
-						message = message + "\n* " + players[j].name;			
-					}
-				}
-				message = message + "\n\nGood luck guys, kill everyone."
-			} else {
-				message = "Hi " + players[i].name + ", you have been assigned to the Doctors Squad \u{1F52C}.\n\nGood luck, you are our only hope."	
-			}
-			bot.telegram.sendMessage(players[i].id, message)
-		}
-		ctx.reply("Game is starting right now.\n\nCheck you private chat to discover your role.")
+bot.use(menu.init())
 
-		state = "active"
-		phase = "squad"
-		leader = 0
-
-		startTurn(ctx)
-	} else {
-		ctx.reply("There are some constraints that does not allow to play")		
-	}
-})
-	
-
-bot.on('message', function (ctx, next) {
-	console.log('message');
-	for (var i = players.length - 1; i >= 0; i--) {
-	}
-});
-
-bot.launch()
-
-//function definition
-function shuffle(array) {
-	var totaltimes = (Math.floor(Math.random() * 100000) % 4500 + 500)
-	for (var i = totaltimes; i >= 0; i--) {
-		for (let i = array.length - 1; i > 0; i--) {
-			let j = Math.floor(Math.random() * (i + 1));
-			[array[i], array[j]] = [array[j], array[i]];
-		}
-	}
-}
-
-function startTurn(ctx) {
-	phase = "squad"
-	ctx.reply("Ok fellas, We must save " + missions[currentMission].name + " to complete the #" + (currentMission+1) + " mission.\n\n" + players[leader].name + " is the team leader and must choose " + missions[currentMission].members[players.length-5] + " people to accomplish the mission.")
-}
+bot.launch();
+bot.startPolling();

@@ -3,5 +3,6 @@ module.exports = class Player{
         this.id = id;
         this.name = name;
         this.role;
+        this.selected = false
     }
 }
