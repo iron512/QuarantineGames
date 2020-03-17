@@ -2,21 +2,27 @@ const player = require("./classi.js");
 
 const telegraf = require('telegraf');
 const privacy = require('../token.js')
+const TelegrafInlineMenu = require('telegraf-inline-menu');
 
 const bot = new telegraf(privacy.token);
 
-var state = "create" // create | setup | active 
-var currentMission = 0;
+var state = "create" // create | setup | active
+var phase = "null" //squad | votation | mission
+var successes = 0
+var failures = 0 
+var leader = -1
+
+var currentMission = -1;
 
 //Numero giocatori: 5-10
 var players = [ 
 				//	/*
-				{name:"1 Ivan Martini", id:178877328, role:"null"},
-				{name:"2 Martino Papa", id:400148831, role:"null"},
-				{name:"3 Ivaneiro Martinez", id:178877328, role:"null"}, 
-				{name:"4 Ivanov Von Martenstein", id:178877328, role:"null"},
-				{name:"5 Martin MacPapus", id:400148831, role:"null"},
-				{name:"6 Martinos Juan de lo Papa", id:400148831, role:"null"},
+				{name:"Ivan Martini", id:178877328, role:"null"},
+				{name:"Martino Papa", id:178877328, role:"null"},
+				{name:"Ivaneiro Martinez", id:178877328, role:"null"}, 
+				{name:"Ivanov Von Martenstein", id:178877328, role:"null"},
+				{name:"Martin MacPapus", id:178877328, role:"null"},
+				{name:"Martinos Juan de lo Papa", id:178877328, role:"null"},
 				//	*/
 			]
 
@@ -42,20 +48,19 @@ bot.start((message) => {
 	return message.reply('Welcome in the covid-19 era');
 })
 
-
 bot.command('joingame', function(ctx,next){
 	if (state != "active") {
 		
 		var isNew = players.findIndex((element) => element.id == ctx.chat.id) == -1;
 		if (isNew) {
 			for (let p of players) {
-				ctx.telegram.sendMessage(p.id, `${ctx.chat.username} has joined the game!`)
+				ctx.telegram.sendMessage(p.id, ctx.chat.username + " has joined the game!")
 			}
 			players.push(new player(ctx.chat.id, ctx.chat.username));
 			ctx.reply('joined!');
 		}
 		else {
-			ctx.reply('you are alredy in the game!');
+			ctx.reply('You are alredy in the game!');
 		}
 	}
 	else{
@@ -100,22 +105,25 @@ bot.command('startgame', function (ctx, next) {
 		var message
 		for (var i = players.length - 1; i >= 0; i--) {
 			if (players[i].role == "infector") {
-				message = "Hi " + players[i].name + ", you are assigned to the Infectors Squad.\n Your other bad pals are:\n"
+				message = "Hi " + players[i].name + ", you have been assigned to the Infectors Squad \u{1F489}.\n\nYour other bad pals are:"
 
 				for (var j = players.length - 1; j >= 0; j--) {
 					if (players[j].role == "infector" && players[j] != players[i]) {
-						message = message + "\n" + players[j].name;			
+						message = message + "\n* " + players[j].name;			
 					}
 				}
-				message = message + "\n\n Good luck guys, kill everyone."
+				message = message + "\n\nGood luck guys, kill everyone."
 			} else {
-				message = "Hi " + players[i].name + ", you are assigned to the Doctors Squad.\n\nGood luck, you are our only hope."	
+				message = "Hi " + players[i].name + ", you have been assigned to the Doctors Squad \u{1F52C}.\n\nGood luck, you are our only hope."	
 			}
 			bot.telegram.sendMessage(players[i].id, message)
 		}
 		
 		state = "active"
-		currentMission = 1;
+		phase = "squad"
+		leader = 0
+
+		discussSquad(ctx)
 	} else {
 		ctx.reply("There are some constraints that does not allow to play")		
 	}
@@ -138,4 +146,10 @@ function shuffle(array) {
 			[array[i], array[j]] = [array[j], array[i]];
 		}
 	}
+}
+
+function discussSquad(ctx) {
+	currentMission++
+	phase = "squad"
+	ctx.reply("Ok fellas, " + players[leader].name " is the team leader.\nWe must save " + missions[currentMission].name + " to complete the #" + (currentMission+1) + " mission and we need " + missions[currentMission].members[players.length-5] + ".")
 }
