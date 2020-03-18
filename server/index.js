@@ -2,7 +2,6 @@
 const telegraf = require('telegraf');
 const privacy = require('../token.js')
 const TelegrafInlineMenu = require('telegraf-inline-menu');
-const sleep = require('sleep');
 
 const player = require("./classi.js");
 
@@ -13,18 +12,19 @@ var phase = "null" //squad | votation | mission
 var successes = 0
 var failures = 0 
 var leader = -1
+var chosen = 0
 
-var currentMission = -1;
+var currentMission = 0;
 
 //Numero giocatori: 5-10
 var players = [ 
 				//	/*
-				{name:"Ivan Martini", id:178877328, role:"null"},
-				{name:"Martino Papa", id:178877328, role:"null"},
-				{name:"Ivaneiro Martinez", id:178877328, role:"null"}, 
-				{name:"Ivanov Von Martenstein", id:178877328, role:"null"},
-				{name:"Martin MacPapus", id:178877328, role:"null"},
-				{name:"Martinos Juan de lo Papa", id:178877328, role:"null"},
+				{name:"1 Ivan Martini", id:178877328, role:"null", choice:false},
+				{name:"2 Martino Papa", id:400148831, role:"null", choice:false},
+				{name:"3 Ivaneiro Martinez", id:178877328, role:"null", choice:false}, 
+				{name:"4 Ivanov Von Martenstein", id:178877328, role:"null", choice:false},
+				{name:"5 Martin MacPapus", id:400148831, role:"null", choice:false},
+				{name:"6 Martinos Juan de lo Papa", id:400148831, role:"null", choice:false},
 				//	*/
 			]
 
@@ -44,6 +44,46 @@ var missions = [
 				{name:"Napoli",members:[3,3,4,5,5,5]},
 				{name:"Trento",members:[3,4,4,5,5,5]}
 			]
+
+const menu = new TelegrafInlineMenu(function(ctx) {
+	if (phase == "squad" && ctx.message.from.id == players[leader].id) 
+		return (players[leader].name + " you are called to nomine " + missions[currentMission].members[players.length-5] + " guys to act on" + missions[currentMission].name + "\n\nWho do you trust?")
+	else 
+		return ("This is not the right time for you to propose a squad")
+})
+
+menu.setCommand('selectplayers')
+
+for (var i = players.length - 1; i >= 0; i--) {
+	let current = players[i]
+	let max = missions[currentMission].members[players.length-5]
+	menu.toggle(current.name, i, {
+		setFunc: (ctx, newVal) => {
+			if(ctx.update.callback_query.from.id == players[leader].id)
+				if (chosen < max) {
+					current.choice = newVal
+
+					if (newVal == true) {
+						chosen++
+					} else {
+						chosen--
+					}
+				} else if (newVal == false) {
+					current.choice = newVal
+					chosen--
+				} else {
+					ctx.answerCbQuery('You have no more room for another player.')
+				}
+			else {
+				ctx.answerCbQuery('You are not the leader.')	
+			}
+		},
+		isSetFunc: () => current.choice,
+		hide: (ctx) => phase != "squad" || ctx.message.from.id != players[leader].id
+	})
+}
+
+bot.use(menu.init())
 
 bot.start((message) => {
 	console.log('started:', message.from.id)
@@ -130,11 +170,12 @@ bot.command('startgame', function (ctx, next) {
 		phase = "squad"
 		leader = 0
 
-		setTimeout(discussSquad, 5000, ctx)
+		startTurn(ctx)
 	} else {
 		ctx.reply("There are some constraints that does not allow to play")		
 	}
 })
+	
 
 bot.on('message', function (ctx, next) {
 	console.log('message');
@@ -155,8 +196,7 @@ function shuffle(array) {
 	}
 }
 
-function discussSquad(ctx) {
-	currentMission++
+function startTurn(ctx) {
 	phase = "squad"
 	ctx.reply("Ok fellas, We must save " + missions[currentMission].name + " to complete the #" + (currentMission+1) + " mission.\n\n" + players[leader].name + " is the team leader and must choose " + missions[currentMission].members[players.length-5] + " people to accomplish the mission.")
 }
