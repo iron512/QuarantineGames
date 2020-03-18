@@ -32,57 +32,56 @@ bot.start((message) => {
 	return message.reply('Welcome in the covid-19 era');
 })
 
-bot.on('text',
-  (ctx) => {
-    switch (ctx.message.text) {
+bot.command('help', function (ctx, next) {
+	ctx.reply('Here is a list of avaible commands for you to use:\n/joingame - join the game \n/startgame - start th game\n/showplayers - list of all the current players\n/help - show commands')
+});
 
-      case "/join": //idea di creare più partite e dividerle per nome in modo da sciegliere in quale entrare
+bot.command('showplayers', function (ctx, next) {
+	var msg = 'The current players are:'
 
-        if (!isStarted) {
-          var isNew = players.findIndex((element) => element.id == ctx.chat.id) == -1;
-          if (isNew) {
-            for (let p of players) {
-              ctx.telegram.sendMessage(p.id, `${ctx.chat.username} has joined the game!`)
-            }
-            players.push(new player(ctx.chat.id, ctx.chat.username));
-            ctx.reply('joined!');
-          }
-          else {
-            ctx.reply('you are alredy in the game!');
-          }
-        }
-        else{
-          ctx.reply('sorry, game is alredy started');
-        }
-
-      break;
-
-      case "/startgame":
-        for (let p of players) {
-          ctx.telegram.sendMessage(p.id, 'the game has started');
-        }
-        isStarted = true;
-      break;
-
-      default:
-        var str = ctx.message.text
-        if(str.charAt(0) == '§'){
-          str = str.substring(1)
-          for(let p of players){
-            if(p.id == str){
-              p.selected = true
-            }
-          }
-        }
-        else{
-          ctx.reply("sorry I don't understand your request");
-        }
-      break;
-    }
-    console.log(ctx.message);
-    console.log(players)
-  })
+	for(var i = 0; i < players.length; i++){
+		msg += '\n- ' + players[i].name	
+	}
+	ctx.reply(msg)
+});
 
 
-bot.launch();
-bot.startPolling();
+bot.command('sp', function () {
+	const menu = new TelegrafInlineMenu('select players');
+	menu.select('a', ()=> Object.keys(players),{
+		setFunc: async (ctx, key) => {
+			selectedKey = key
+			await ctx.answerCbQuery(`you selected ${key}`)
+		  },
+		  isSetFunc: (_ctx, key) => key === selectedKey
+	})
+	bot.use(menu.init())
+	console.log(Object.keys(players))
+});
+
+
+bot.on('message', function (ctx, next) {
+	console.log('message');
+	for (var i = players.length - 1; i >= 0; i--) {
+	}
+});
+
+
+bot.launch()
+
+//FUNCTION DECLARATION
+function shuffle(array) {
+	var totaltimes = (Math.floor(Math.random() * 100000) % 4500 + 500)
+	for (var i = totaltimes; i >= 0; i--) {
+		for (let i = array.length - 1; i > 0; i--) {
+			let j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		}
+	}
+}
+
+function discussSquad(ctx) {
+	currentMission++
+	phase = "squad"
+	ctx.reply("Ok fellas, " + players[leader].name + " is the team leader.\nWe must save " + missions[currentMission].name + " to complete the #" + (currentMission+1) + " mission and we need " + missions[currentMission].members[players.length-5] + ".")
+}

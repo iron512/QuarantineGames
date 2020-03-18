@@ -4,11 +4,14 @@
   "description": "Corona Fighters - A bluff game for fighting COVID19 and boredom",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":"nodemon index.js"
+
   },
   "author": "Iron512",
   "license": "ISC",
   "dependencies": {
+    "nodemon": "^2.0.2",
     "telegraf": "^3.36.0",
     "telegraf-inline-menu": "^4.0.0"
   }
