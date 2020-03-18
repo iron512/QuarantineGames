@@ -1,8 +1,10 @@
-const player = require("./classi.js");
-
+//requires*
 const telegraf = require('telegraf');
 const privacy = require('../token.js')
 const TelegrafInlineMenu = require('telegraf-inline-menu');
+const sleep = require('sleep');
+
+const player = require("./classi.js");
 
 const bot = new telegraf(privacy.token);
 
@@ -51,20 +53,24 @@ bot.start((message) => {
 bot.command('joingame', function(ctx,next){
 	if (state != "active") {
 		
-		var isNew = players.findIndex((element) => element.id == ctx.chat.id) == -1;
+		var isNew = players.findIndex((element) => element.id == ctx.message.from.id) == -1;
 		if (isNew) {
+			players.push(new player(ctx.message.from.id, ctx.message.from.username));
+			
+			var answer = ""
 			for (let p of players) {
-				ctx.telegram.sendMessage(p.id, ctx.chat.username + " has joined the game!")
+			//	ctx.telegram.sendMessage(p.id, ctx.message.from.username + " has joined the game!")
+				answer = answer + " * " + p.name + "\n"
 			}
-			players.push(new player(ctx.chat.id, ctx.chat.username));
-			ctx.reply('joined!');
+			
+			ctx.reply(ctx.message.from.username + ' has joined the game!\n\nCurrent players are:\n' + answer);
 		}
 		else {
 			ctx.reply('You are alredy in the game!');
 		}
 	}
 	else{
-		ctx.reply('sorry, game is alredy started');
+		//ctx.reply('sorry, game is alredy started');
 	}
 
 })
@@ -118,12 +124,13 @@ bot.command('startgame', function (ctx, next) {
 			}
 			bot.telegram.sendMessage(players[i].id, message)
 		}
-		
+		ctx.reply("Game is starting right now.\n\nCheck you private chat to discover your role.")
+
 		state = "active"
 		phase = "squad"
 		leader = 0
 
-		discussSquad(ctx)
+		setTimeout(discussSquad, 5000, ctx)
 	} else {
 		ctx.reply("There are some constraints that does not allow to play")		
 	}
@@ -137,7 +144,7 @@ bot.on('message', function (ctx, next) {
 
 bot.launch()
 
-//FUNCTION DECLARATION
+//function definition
 function shuffle(array) {
 	var totaltimes = (Math.floor(Math.random() * 100000) % 4500 + 500)
 	for (var i = totaltimes; i >= 0; i--) {
@@ -151,5 +158,5 @@ function shuffle(array) {
 function discussSquad(ctx) {
 	currentMission++
 	phase = "squad"
-	ctx.reply("Ok fellas, " + players[leader].name " is the team leader.\nWe must save " + missions[currentMission].name + " to complete the #" + (currentMission+1) + " mission and we need " + missions[currentMission].members[players.length-5] + ".")
+	ctx.reply("Ok fellas, We must save " + missions[currentMission].name + " to complete the #" + (currentMission+1) + " mission.\n\n" + players[leader].name + " is the team leader and must choose " + missions[currentMission].members[players.length-5] + " people to accomplish the mission.")
 }
